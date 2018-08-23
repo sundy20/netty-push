@@ -14,6 +14,7 @@
     <modules>
         <module>./netty-push-server</module>
         <module>./netty-push-client</module>
+        <module>./netty-push-share</module>
     </modules>
 
 </project>

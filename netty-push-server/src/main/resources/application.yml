@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  jackson:
+    default-property-inclusion: non_null
+  application:
+    name: netty-push-server
+  main:
+    web-application-type: none
+  aop:
+    auto: true
+    proxy-target-class: true
+
+logging:
+  level:
+    ROOT: info
+    com.sundy: debug
+    org.springframework: info
+
+netty:
+  server:
+    port: 9090
