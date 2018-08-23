@@ -3,6 +3,7 @@ package com.sundy.nettypush.server;
 import com.sundy.share.dto.BaseMsg;
 import com.sundy.share.dto.PingMsg;
 import com.sundy.share.dto.ReqMsg;
+import com.sundy.share.enums.MsgType;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
@@ -71,22 +72,37 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
                 PingMsg replyPing = new PingMsg();
 
-                NettyChannelMap.getChannelByClientId(pingMsg.getClientId()).writeAndFlush(replyPing);
+                channelHandlerContext.writeAndFlush(replyPing);
             }
             break;
 
             case ASK: {
 
+                ReqMsg reqMsg = (ReqMsg) baseMsg;
+
+                String clientId = reqMsg.getClientId();
+
+                String reqId = reqMsg.getReqId();
+
+                String jsonStr = reqMsg.getJsonStr();
+
+                logger.info("NettyServerHandler.channelRead0 receive reqMsg from clientId : " + clientId + " reqId : " + reqId + " jsonStr : " + jsonStr);
+
+                reqMsg.setType(MsgType.REPLY);
+
+                reqMsg.setJsonStr("{'reply':'服务端已收到 " + clientId + " 数据'}");
+
+                channelHandlerContext.writeAndFlush(reqMsg);
             }
             break;
 
             case REPLY: {
-                //收到客户端的请求
+                //收到客户端的应答
                 ReqMsg replyMsg = (ReqMsg) baseMsg;
 
-                String id = replyMsg.getReqId();
+                String reqId = replyMsg.getReqId();
 
-                NettyChannelMap.putMsg(id, replyMsg);
+                NettyChannelMap.putMsg(reqId, replyMsg);
             }
             break;
 

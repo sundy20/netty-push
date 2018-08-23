@@ -1,4 +1,4 @@
-# netty-push
+#netty-push
 
 netty主推模式
 
@@ -13,6 +13,7 @@ netty主推模式
 心跳检测
 
 客户端断线重连（每3秒）
+
 
 #技术栈
 

@@ -10,6 +10,7 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  * @author plus.wang
  * @description netty客户端处理器
@@ -41,7 +42,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<BaseMsg> {
                     PingMsg pingMsg = new PingMsg();
                     pingMsg.setClientId(nettyClient.getClientId());
                     ctx.writeAndFlush(pingMsg);
-                    logger.info("NettyClientHandler.userEventTriggered send pingMsg clientId : {}",nettyClient.getClientId());
+                    logger.info("NettyClientHandler.userEventTriggered send pingMsg clientId : {}", nettyClient.getClientId());
                     break;
                 default:
                     break;
@@ -63,7 +64,9 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, BaseMsg baseMsg) {
+
         MsgType msgType = baseMsg.getType();
+
         switch (msgType) {
 
             case PING: {
@@ -73,17 +76,30 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<BaseMsg> {
             break;
 
             case ASK: {
+
                 ReqMsg reqMsg = (ReqMsg) baseMsg;
-                logger.info("客户端clientId: " + nettyClient.getClientId() + " 收到服务端推送消息:" + reqMsg.getJsonStr() + " reqId: " + reqMsg.getReqId());
+
+                logger.info("NettyClientHandler.channelRead0 clientId: " + nettyClient.getClientId() + " 收到服务端推送消息: " + reqMsg.getJsonStr() + " reqId: " + reqMsg.getReqId());
+
                 reqMsg.setClientId(nettyClient.getClientId());
+
                 reqMsg.setType(MsgType.REPLY);
-                reqMsg.setJsonStr("{'reply':'客户端：crawler_1 已收到服务端推送数据'}");
+
+                reqMsg.setJsonStr("{'reply':'客户端：" + nettyClient.getClientId() + " 已收到服务端推送数据'}");
+
                 channelHandlerContext.writeAndFlush(reqMsg);
             }
             break;
 
             case REPLY: {
 
+                ReqMsg replyMsg = (ReqMsg) baseMsg;
+
+                String reqId = replyMsg.getReqId();
+
+                String jsonStr = replyMsg.getJsonStr();
+
+                logger.info("NettyClientHandler.channelRead0 receive replyMsg from server " + " reqId : " + reqId + " jsonStr : " + jsonStr);
             }
             break;
 

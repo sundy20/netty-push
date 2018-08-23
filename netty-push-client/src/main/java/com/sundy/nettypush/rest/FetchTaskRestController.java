@@ -1,9 +1,8 @@
 package com.sundy.nettypush.rest;
 
-import com.sundy.share.dto.ReqMsg;
+import com.sundy.nettypush.constant.FetchTaskSign;
 import com.sundy.share.dto.Result;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -14,11 +13,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class FetchTaskRestController {
 
+    @GetMapping(value = "/nettyclient/fetchstart")
+    public Result<String> startFetchTask() {
 
-    @PostMapping(value = "/nettyclient/fetchtask")
-    public Result<String> addTask(@RequestBody ReqMsg reqMsg) {
+        FetchTaskSign.sign = true;
 
+        return Result.success("start fetch tasks success");
+    }
 
-        return Result.success("");
+    @GetMapping(value = "/nettyclient/fetchstop")
+    public Result<String> stopFetchTask() {
+
+        FetchTaskSign.sign = false;
+
+        return Result.success("stop fetch tasks success");
     }
 }
