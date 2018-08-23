@@ -1,14 +1,12 @@
 package com.sundy.nettypush.server;
 
 import com.sundy.nettypush.util.GzipUtil;
-import com.sundy.share.dto.Params;
 import com.sundy.share.dto.ReqMsg;
 import io.netty.channel.socket.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -26,31 +24,21 @@ public class IPushClientImp implements IPushClient {
     @Override
     public String callClient(String clientid, String jsonStr) {
 
-        SocketChannel channel = (SocketChannel) NettyChannelMap.get(clientid);
+        SocketChannel channel = (SocketChannel) NettyChannelMap.getChannelByClientId(clientid);
 
         if (channel != null) {
 
-            ReqMsg askMsg = new ReqMsg();
+            ReqMsg reqMsg = new ReqMsg();
 
-            Params params = new Params();
+            reqMsg.setJsonStr(jsonStr);
 
-            params.setJsonStr(jsonStr);
-
-            String uuid = UUID.randomUUID().toString();
-
-            askMsg.setReqId(uuid);
-
-            askMsg.setParams(params);
-
-            askMsg.setClientId(uuid);
-
-            askMsg.setToclientId(clientid);
+            reqMsg.setClientId(clientid);
 
             LinkedBlockingQueue<ReqMsg> queue = new LinkedBlockingQueue<>(1);
 
-            NettyChannelMap.putQueue(askMsg.getReqId(), queue);
+            NettyChannelMap.putQueue(reqMsg.getReqId(), queue);
 
-            channel.writeAndFlush(askMsg);
+            channel.writeAndFlush(reqMsg);
             //同步等待客户端返回消息
             ReqMsg replyMsg;
 
@@ -60,7 +48,7 @@ public class IPushClientImp implements IPushClient {
 
                 if (null != replyMsg) {
 
-                    return GzipUtil.gunzip(replyMsg.getParams().getJsonStr());
+                    return GzipUtil.gunzip(replyMsg.getJsonStr());
                 }
 
             } catch (InterruptedException | IOException e) {
@@ -69,7 +57,7 @@ public class IPushClientImp implements IPushClient {
 
             } finally {
 
-                NettyChannelMap.removeQueue(askMsg.getReqId());
+                NettyChannelMap.removeQueue(reqMsg.getReqId());
             }
         }
 

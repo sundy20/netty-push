@@ -13,7 +13,7 @@ import javax.annotation.PreDestroy;
  * @date 2018/8/23
  */
 @Component
-public class BootStrap {
+public class ServerBootStrap {
 
     @Value("${netty.server.port:9090}")
     private int nettyPort;

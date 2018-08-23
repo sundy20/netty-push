@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8090
 
 spring:
   profiles:
@@ -7,7 +7,7 @@ spring:
   jackson:
     default-property-inclusion: non_null
   application:
-    name: netty-push-server
+    name: netty-push-client
   aop:
     auto: true
     proxy-target-class: true
@@ -19,5 +19,7 @@ logging:
     org.springframework: info
 
 netty:
+  clientId: crawler_1
   server:
+    host: localhost
     port: 9090

@@ -30,7 +30,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
         logger.info("channel inActive id:" + id);
 
-        String clientid = NettyChannelMap.get(id);
+        String clientid = NettyChannelMap.getClientId(id);
 
         if (null != clientid) {
 
@@ -67,7 +67,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
                 PingMsg replyPing = new PingMsg();
 
-                if (null == NettyChannelMap.get(pingMsg.getClientId())) {
+                if (null == NettyChannelMap.getChannelByClientId(pingMsg.getClientId())) {
 
                     ChannelId channelId = channelHandlerContext.channel().id();
 
@@ -78,7 +78,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
                     logger.info("clientId : " + pingMsg.getClientId() + " channelId : " + channelId + " receive pingMsg");
                 }
 
-                NettyChannelMap.get(pingMsg.getClientId()).writeAndFlush(replyPing);
+                NettyChannelMap.getChannelByClientId(pingMsg.getClientId()).writeAndFlush(replyPing);
             }
             break;
 
@@ -88,7 +88,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
             break;
 
             case REPLY: {
-                //收到客户端的请求 并刷新客户端在线时间
+                //收到客户端的请求
                 ReqMsg replyMsg = (ReqMsg) baseMsg;
 
                 String id = replyMsg.getReqId();

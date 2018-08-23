@@ -1,0 +1,45 @@
+Configuration:
+  status: warn
+  Properties:
+    Property:
+    - name: project.name
+      value: netty-push-client
+    - name: log.path
+      value: /logs/sundy
+
+  Appenders:
+    Console: #输出到控制台
+      name: Console
+      PatternLayout:
+        Pattern: '%highlight{%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{1.}:%L - %msg%n}{%throwable{short.fileName}}{FATAL=white,ERROR=red,
+                            WARN=blue, INFO=black, DEBUG=green, TRACE=blue}'
+      target: SYSTEM_OUT
+    RollingRandomAccessFile: #输出到文件，超过1024MB归档
+    - name: RollingRandomAccessFile
+      fileName: ${log.path}/${sys:project.name}.log
+      filePattern: "${log.path}/${sys:project.name}-%d{yyyy-MM-dd}-%i.log.gz"
+      PatternLayout: #设置日志级别的颜色
+        pattern: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{1.}:%L - %msg%n%ex'
+      Policies:
+        SizeBasedTriggeringPolicy:
+          size: 512 M
+        TimeBasedTriggeringPolicy:
+          modulate: true
+          interval: 1
+        CronTriggeringPolicy:
+          schedule: "0 0 0 * * ?"
+      DefaultRollOverStrategy:
+        max: 7
+        Delete:
+          basePath: ${log.path}
+          maxDepth: 1
+          IfFileName:
+            glob: "${sys:project.name}-*.log.gz"
+          IfLastModified:
+            age: 5d
+
+  Loggers:
+    Root:
+      AppenderRef:
+      - ref: Console
+      - ref: RollingRandomAccessFile

@@ -9,32 +9,32 @@ import com.sundy.share.enums.MsgType;
  */
 public class ReplyMsg extends BaseMsg {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private String reqId;
+    private String reqId;
 
-    private Params params;
+    private String jsonStr;
 
-	public ReplyMsg() {
+    public ReplyMsg() {
 
         super();
 
         setType(MsgType.REPLY);
     }
-	
+
     public String getReqId() {
-		return reqId;
-	}
-
-	public void setReqId(String reqId) {
-		this.reqId = reqId;
-	}
-
-    public Params getParams() {
-        return params;
+        return reqId;
     }
 
-    public void setParams(Params params) {
-        this.params = params;
+    public void setReqId(String reqId) {
+        this.reqId = reqId;
+    }
+
+    public String getJsonStr() {
+        return jsonStr;
+    }
+
+    public void setJsonStr(String jsonStr) {
+        this.jsonStr = jsonStr;
     }
 }

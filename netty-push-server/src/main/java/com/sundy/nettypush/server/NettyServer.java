@@ -69,14 +69,4 @@ public class NettyServer {
             logger.error("---------Start Netty Tcp Server Port : " + port + " error : ", e);
         }
     }
-
-    public static void main(String[] args) {
-        //启动服务器
-        logger.info("---------Start Tcp Server---------");
-        new NettyServer().start(9090);
-        //测试并发请求
-//    	Thread.sleep(6000);
-//    	IPushClientImp iPushClient=new IPushClientImp();
-//        iPushClient.callClient();
-    }
 }

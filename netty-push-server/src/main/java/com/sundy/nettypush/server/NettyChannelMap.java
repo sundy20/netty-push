@@ -41,11 +41,11 @@ public class NettyChannelMap {
         channelIdClientIdMap.put(channelId, clientid);
     }
 
-    public static Channel get(String clientId) {
+    public static Channel getChannelByClientId(String clientId) {
         return clientIdSocketChannelMap.get(clientId);
     }
 
-    public static String get(ChannelId channelId) {
+    public static String getClientId(ChannelId channelId) {
         if (channelIdClientIdMap.containsKey(channelId)) {
             return channelIdClientIdMap.get(channelId);
         }
