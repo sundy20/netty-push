@@ -10,7 +10,11 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * @author plus.wang
+ * @description netty客户端处理器
+ * @date 2018/8/23
+ */
 public class NettyClientHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
     private NettyClient nettyClient;
@@ -35,8 +39,9 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<BaseMsg> {
             switch (e.state()) {
                 case WRITER_IDLE:
                     PingMsg pingMsg = new PingMsg();
+                    pingMsg.setClientId(nettyClient.getClientId());
                     ctx.writeAndFlush(pingMsg);
-                    logger.info("NettyClientHandler.userEventTriggered send pingMsg");
+                    logger.info("NettyClientHandler.userEventTriggered send pingMsg clientId : {}",nettyClient.getClientId());
                     break;
                 default:
                     break;
@@ -63,15 +68,16 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
             case PING: {
                 //客户端接收到服务端心跳回应
-                logger.info("client receive pingMsg");
+                logger.info("NettyClientHandler.channelRead0 client receive reply pingMsg");
             }
             break;
 
             case ASK: {
                 ReqMsg reqMsg = (ReqMsg) baseMsg;
-                logger.info("客户端clientId: " + nettyClient.getClientId() + " 收到服务端请求消息:" + reqMsg.getJsonStr() + " reqId: " + reqMsg.getReqId());
+                logger.info("客户端clientId: " + nettyClient.getClientId() + " 收到服务端推送消息:" + reqMsg.getJsonStr() + " reqId: " + reqMsg.getReqId());
                 reqMsg.setClientId(nettyClient.getClientId());
                 reqMsg.setType(MsgType.REPLY);
+                reqMsg.setJsonStr("{'reply':'客户端：crawler_1 已收到服务端推送数据'}");
                 channelHandlerContext.writeAndFlush(reqMsg);
             }
             break;

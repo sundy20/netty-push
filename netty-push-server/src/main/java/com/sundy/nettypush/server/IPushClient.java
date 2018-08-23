@@ -1,13 +1,20 @@
 package com.sundy.nettypush.server;
 
+import com.sundy.share.dto.ReqMsg;
+
+/**
+ * @author plus.wang
+ * @description 主动推送接口
+ * @date 2018/8/23
+ */
 public interface IPushClient {
 
     /**
-     * 服务端推送指定客户端
+     * 调用客户端 推送指定消息
      *
-     * @param clientid
-     * @param jsonStr
+     * @param reqMsg
      * @return
      */
-    String callClient(String clientid, String jsonStr);
+    String callClient(ReqMsg reqMsg);
+
 }

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author plus.wang
- * @description netty服务
+ * @description netty服务端
  * @date 2018/8/23
  */
 @Component

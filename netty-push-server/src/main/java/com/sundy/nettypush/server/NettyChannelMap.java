@@ -2,7 +2,6 @@ package com.sundy.nettypush.server;
 
 import com.sundy.share.dto.ReqMsg;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelId;
 import io.netty.channel.socket.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,31 +22,26 @@ public class NettyChannelMap {
     /**
      * 保存客户端的channel 唯一标识id  以便服务器向指定客户端推送消息
      */
-    private static Map<String, SocketChannel> clientIdSocketChannelMap = new ConcurrentHashMap<String, SocketChannel>();
-
-    private static Map<ChannelId, String> channelIdClientIdMap = new ConcurrentHashMap<ChannelId, String>();
+    private static Map<String, SocketChannel> clientIdSocketChannelMap = new ConcurrentHashMap<>();
 
     /**
      * 保存推送到客户端没有得到响应的消息 客户端断开连接的情况
      */
     private static Map<String, LinkedBlockingQueue<ReqMsg>> clientNoResMap = new ConcurrentHashMap<String, LinkedBlockingQueue<ReqMsg>>();
 
-
-    public static void add(String clientId, SocketChannel socketChannel) {
+    public static void bindClientIdChannel(String clientId, SocketChannel socketChannel) {
         clientIdSocketChannelMap.put(clientId, socketChannel);
-    }
-
-    public static void add(ChannelId channelId, String clientid) {
-        channelIdClientIdMap.put(channelId, clientid);
     }
 
     public static Channel getChannelByClientId(String clientId) {
         return clientIdSocketChannelMap.get(clientId);
     }
 
-    public static String getClientId(ChannelId channelId) {
-        if (channelIdClientIdMap.containsKey(channelId)) {
-            return channelIdClientIdMap.get(channelId);
+    public static String getClientId(SocketChannel socketChannel) {
+        for (Map.Entry entry : clientIdSocketChannelMap.entrySet()) {
+            if (entry.getValue() == socketChannel) {
+                return entry.getKey().toString();
+            }
         }
         return null;
     }
@@ -55,17 +49,14 @@ public class NettyChannelMap {
     public static void remove(SocketChannel socketChannel) {
         for (Map.Entry entry : clientIdSocketChannelMap.entrySet()) {
             if (entry.getValue() == socketChannel) {
-                clientIdSocketChannelMap.remove(entry.getKey());
+                String key = entry.getKey().toString();
+                clientIdSocketChannelMap.remove(key);
             }
         }
     }
 
-    public static void remove(String clientid) {
-        for (Map.Entry entry : channelIdClientIdMap.entrySet()) {
-            if (entry.getValue() == clientid) {
-                channelIdClientIdMap.remove(entry.getKey());
-            }
-        }
+    public static void remove(String clientId) {
+        clientIdSocketChannelMap.remove(clientId);
     }
 
     public static void putQueue(String reqId, LinkedBlockingQueue<ReqMsg> queue) {
@@ -75,7 +66,7 @@ public class NettyChannelMap {
     public static void putMsg(String reqId, ReqMsg msg) {
         LinkedBlockingQueue<ReqMsg> queue = clientNoResMap.get(reqId);
         if (null == queue) {
-            logger.error("临时队列不存在!响应消息未放成功!");
+            logger.error("NettyChannelMap.putMsg 临时队列不存在!响应消息未放成功!");
             throw new RuntimeException("not found req...");
         }
         try {

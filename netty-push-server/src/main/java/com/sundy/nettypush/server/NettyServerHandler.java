@@ -1,8 +1,9 @@
 package com.sundy.nettypush.server;
 
-import com.sundy.share.dto.*;
+import com.sundy.share.dto.BaseMsg;
+import com.sundy.share.dto.PingMsg;
+import com.sundy.share.dto.ReqMsg;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelId;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.ReferenceCountUtil;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author plus.wang
- * @description netty服务端处理
+ * @description netty服务端处理器
  * @date 2018/8/22
  */
 public class NettyServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
@@ -24,19 +25,15 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
         //客户端非活跃时 客户端死机或者卡死
         super.channelInactive(ctx);
 
-        NettyChannelMap.remove((SocketChannel) ctx.channel());
+        SocketChannel socketChannel = (SocketChannel) ctx.channel();
 
-        ChannelId id = ctx.channel().id();
-
-        logger.info("channel inActive id:" + id);
-
-        String clientid = NettyChannelMap.getClientId(id);
+        String clientid = NettyChannelMap.getClientId(socketChannel);
 
         if (null != clientid) {
 
-            NettyChannelMap.remove(clientid);
+            logger.info("NettyServerHandler.channelInactive 客户端 clientId : " + clientid + " 已断开或者无响应");
 
-            logger.info("-----------客户端" + clientid + "已断开或者无响应-----------");
+            NettyChannelMap.remove(clientid);
         }
     }
 
@@ -45,7 +42,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
         super.channelActive(ctx);
 
-        logger.info("----------成功连接一个客户端----------");
+        logger.info("NettyServerHandler.channelActive 成功连接一个客户端");
     }
 
     @Override
@@ -65,18 +62,14 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
                 //服务器端响应客户端心跳 刷新客户端在线时间
                 PingMsg pingMsg = (PingMsg) baseMsg;
 
-                PingMsg replyPing = new PingMsg();
-
                 if (null == NettyChannelMap.getChannelByClientId(pingMsg.getClientId())) {
 
-                    ChannelId channelId = channelHandlerContext.channel().id();
-
-                    NettyChannelMap.add(pingMsg.getClientId(), (SocketChannel) channelHandlerContext.channel());
-
-                    NettyChannelMap.add(channelId, pingMsg.getClientId());
-
-                    logger.info("clientId : " + pingMsg.getClientId() + " channelId : " + channelId + " receive pingMsg");
+                    NettyChannelMap.bindClientIdChannel(pingMsg.getClientId(), (SocketChannel) channelHandlerContext.channel());
                 }
+
+                logger.info("NettyServerHandler.channelRead0 receive pingMsg from clientId : " + pingMsg.getClientId());
+
+                PingMsg replyPing = new PingMsg();
 
                 NettyChannelMap.getChannelByClientId(pingMsg.getClientId()).writeAndFlush(replyPing);
             }

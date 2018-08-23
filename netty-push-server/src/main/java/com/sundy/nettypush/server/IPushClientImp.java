@@ -1,12 +1,11 @@
 package com.sundy.nettypush.server;
 
-import com.sundy.nettypush.util.GzipUtil;
 import com.sundy.share.dto.ReqMsg;
 import io.netty.channel.socket.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -17,22 +16,17 @@ import java.util.concurrent.TimeUnit;
  * @description
  * @date 2018/8/22
  */
+@Component("iPushClientImp")
 public class IPushClientImp implements IPushClient {
 
     private static final Logger logger = LoggerFactory.getLogger(IPushClientImp.class);
 
     @Override
-    public String callClient(String clientid, String jsonStr) {
+    public String callClient(ReqMsg reqMsg) {
 
-        SocketChannel channel = (SocketChannel) NettyChannelMap.getChannelByClientId(clientid);
+        SocketChannel channel = (SocketChannel) NettyChannelMap.getChannelByClientId(reqMsg.getClientId());
 
         if (channel != null) {
-
-            ReqMsg reqMsg = new ReqMsg();
-
-            reqMsg.setJsonStr(jsonStr);
-
-            reqMsg.setClientId(clientid);
 
             LinkedBlockingQueue<ReqMsg> queue = new LinkedBlockingQueue<>(1);
 
@@ -44,14 +38,14 @@ public class IPushClientImp implements IPushClient {
 
             try {
                 //poll方法非阻塞的 设置超时否则抛出异常null
-                replyMsg = queue.poll(30, TimeUnit.SECONDS);
+                replyMsg = queue.poll(10, TimeUnit.SECONDS);
 
                 if (null != replyMsg) {
 
-                    return GzipUtil.gunzip(replyMsg.getJsonStr());
+                    return replyMsg.getJsonStr();
                 }
 
-            } catch (InterruptedException | IOException e) {
+            } catch (InterruptedException e) {
 
                 logger.error("queue poll 消息时超时--------", e);
 
@@ -68,7 +62,7 @@ public class IPushClientImp implements IPushClient {
 
         final IPushClient iPushClient = new IPushClientImp();
 
-        ExecutorService executorService = new ThreadPoolExecutor(5, 5, 1000, TimeUnit.SECONDS, new LinkedBlockingQueue<>(100), new ThreadPoolExecutor.CallerRunsPolicy());
+        ExecutorService executorService = new ThreadPoolExecutor(5, 5, 1000, TimeUnit.SECONDS, new LinkedBlockingQueue<>(100), new ThreadPoolExecutor.DiscardOldestPolicy());
 
         for (int i = 0; i < 100; i++) {
 
@@ -76,7 +70,13 @@ public class IPushClientImp implements IPushClient {
 
                 try {
 
-                    iPushClient.callClient("001", "{'req':'服务器端  向 001 客户端 主动请求数据'}");
+                    ReqMsg reqMsg = new ReqMsg();
+
+                    reqMsg.setClientId("crawler_1");
+
+                    reqMsg.setJsonStr("{'req':'服务器端向客户端：crawler_1 主动请求数据'}");
+
+                    iPushClient.callClient(reqMsg);
 
                 } catch (Exception e) {
 
