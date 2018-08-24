@@ -8,9 +8,6 @@ spring:
     default-property-inclusion: non_null
   application:
     name: netty-push-server
-  aop:
-    auto: true
-    proxy-target-class: true
 
 logging:
   level:

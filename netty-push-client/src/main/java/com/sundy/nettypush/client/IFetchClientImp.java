@@ -1,5 +1,6 @@
 package com.sundy.nettypush.client;
 
+import com.sundy.nettypush.component.ExecutorComponent;
 import com.sundy.nettypush.constant.FetchTaskSign;
 import com.sundy.share.dto.ReqMsg;
 import io.netty.channel.Channel;
@@ -9,10 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author plus.wang
@@ -27,32 +24,36 @@ public class IFetchClientImp implements IFetchClient {
     @Autowired
     private NettyClient nettyClient;
 
-    private ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(100), new ThreadPoolExecutor.DiscardPolicy());
+    @Autowired
+    private ExecutorComponent executorComponent;
 
     @PostConstruct
     @Override
     public void fetchTasks() {
 
-        executorService.execute(() -> {
-
-            Channel channel = nettyClient.getChannelFuture().channel();
+        executorComponent.execute(() -> {
 
             while (FetchTaskSign.sign) {
 
                 try {
 
-                    Thread.sleep(8000);
+                    Channel channel = nettyClient.getChannel();
 
-                    logger.info("FetchTaskSign.sign={}", FetchTaskSign.sign);
+                    Thread.sleep(6000);
 
-                    ReqMsg reqMsg = new ReqMsg();
+                    if (null != channel) {
 
-                    reqMsg.setClientId(nettyClient.getClientId());
+                        logger.info("FetchTaskSign.sign={}", FetchTaskSign.sign);
 
-                    reqMsg.setJsonStr("{'req':'客户端：" + nettyClient.getClientId() + " 主动获取tasks'}");
+                        ReqMsg reqMsg = new ReqMsg();
 
-                    channel.writeAndFlush(reqMsg);
+                        reqMsg.setClientId(nettyClient.getClientId());
 
+                        reqMsg.setJsonStr("{'req':'客户端：" + nettyClient.getClientId() + " 主动获取tasks'}");
+
+                        channel.writeAndFlush(reqMsg);
+
+                    }
                 } catch (InterruptedException e) {
 
                     logger.error("------------IFetchClientImp.fetchTasks error : ", e);

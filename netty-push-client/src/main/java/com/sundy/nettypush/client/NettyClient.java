@@ -1,10 +1,8 @@
 package com.sundy.nettypush.client;
 
+import com.sundy.nettypush.component.ExecutorComponent;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -14,15 +12,12 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author plus.wang
@@ -40,15 +35,17 @@ public class NettyClient {
     private Bootstrap bootstrap;
     private int remotePort;
     private String remoteHost;
-    private ChannelFuture channelFuture;
-    private ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(100), new ThreadPoolExecutor.DiscardPolicy());
+    private volatile Channel channel;
+
+    @Autowired
+    private ExecutorComponent executorComponent;
 
     public String getClientId() {
         return clientId;
     }
 
-    public ChannelFuture getChannelFuture() {
-        return channelFuture;
+    public Channel getChannel() {
+        return channel;
     }
 
     public void stop() {
@@ -89,9 +86,11 @@ public class NettyClient {
 
             init(host, port);
             // 发起异步连接操作
-            channelFuture = bootstrap.connect(new InetSocketAddress(remoteHost, remotePort)).sync();
+            ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(remoteHost, remotePort)).sync();
 
-            channelFuture.channel().closeFuture().sync();
+            channel = channelFuture.channel();
+
+            channel.closeFuture().sync();
 
         } catch (Exception e) {
 
@@ -108,7 +107,7 @@ public class NettyClient {
                 logger.error("------------NettyClient.doConnect error : ", e);
             }
 
-            executorService.execute(() -> connect(host, port));
+            executorComponent.execute(() -> connect(host, port));
         }
 
         /*channelFuture.addListener((ChannelFutureListener) f -> {

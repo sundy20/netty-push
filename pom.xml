@@ -6,7 +6,7 @@
     <groupId>com.sundy</groupId>
     <artifactId>netty-push</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>netty-push</name>
     <description>netty push project for Spring Boot</description>

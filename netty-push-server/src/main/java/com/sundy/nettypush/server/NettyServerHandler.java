@@ -43,7 +43,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
         super.channelActive(ctx);
 
-        logger.info("NettyServerHandler.channelActive 成功连接一个客户端");
+        logger.info("NettyServerHandler.channelActive");
     }
 
     @Override
@@ -90,7 +90,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
                 reqMsg.setType(MsgType.REPLY);
 
-                reqMsg.setJsonStr("{'reply':'服务端已收到 " + clientId + " 数据'}");
+                reqMsg.setJsonStr("{'reply':'服务端已收到 " + clientId + " 获取tasks请求'}");
 
                 channelHandlerContext.writeAndFlush(reqMsg);
             }

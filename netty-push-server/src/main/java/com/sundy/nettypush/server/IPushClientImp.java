@@ -42,6 +42,8 @@ public class IPushClientImp implements IPushClient {
 
                 if (null != replyMsg) {
 
+                    logger.info("IPushClientImp.callClient replyMsg jsonStr : {}", replyMsg.getJsonStr());
+
                     return replyMsg.getJsonStr();
                 }
 
