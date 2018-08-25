@@ -20,7 +20,7 @@ public class ExecutorComponent {
     @PostConstruct
     public void initThreadPoll() {
 
-        threadPoolExecutor = ThreadPollUtil.defineThreadPool(1, "netty-client");
+        threadPoolExecutor = ThreadPollUtil.defineThreadPool(2, "netty-client");
     }
 
     @PreDestroy

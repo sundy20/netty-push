@@ -53,7 +53,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<BaseMsg> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        logger.info("NettyClientHandler.channelActive");
+        logger.info("NettyClientHandler.channelActive clientId : " + nettyClient.getClientId() + " 连接服务端成功");
     }
 
     @Override

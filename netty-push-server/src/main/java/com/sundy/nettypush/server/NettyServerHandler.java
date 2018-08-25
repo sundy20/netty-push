@@ -43,7 +43,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<BaseMsg> {
 
         super.channelActive(ctx);
 
-        logger.info("NettyServerHandler.channelActive");
+        logger.info("NettyServerHandler.channelActive 成功连接一个客户端");
     }
 
     @Override

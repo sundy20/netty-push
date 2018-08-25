@@ -21,7 +21,7 @@ netty实现客户端拉取模式
 
 springboot 2.0.4 
 
-netty 4.1.25
+netty 4.1.29.Final
 
 fastjson 1.2.47
 
