@@ -1,6 +1,5 @@
 package com.sundy.nettypush.client;
 
-import com.sundy.nettypush.component.ExecutorComponent;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -12,7 +11,6 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -36,9 +34,6 @@ public class NettyClient {
     private int remotePort;
     private String remoteHost;
     private volatile Channel channel;
-
-    @Autowired
-    private ExecutorComponent executorComponent;
 
     public String getClientId() {
         return clientId;
@@ -107,7 +102,7 @@ public class NettyClient {
                 logger.error("------------NettyClient.doConnect error : ", e);
             }
 
-            executorComponent.execute(() -> connect(host, port));
+            connect(host, port);
         }
 
         /*channelFuture.addListener((ChannelFutureListener) f -> {
