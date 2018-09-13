@@ -19,7 +19,7 @@ netty实现客户端拉取模式
 
 #技术栈
 
-springboot 2.0.4 
+springboot 2.0.5 
 
 netty 4.1.29.Final
 
